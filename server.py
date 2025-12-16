@@ -1,21 +1,21 @@
-from flask import Flask, render_template, request, jsonify
-from openai import OpenAI
+from flask import Flask, send_from_directory
+import os
 
 app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return send_from_directory(".", "index.html")
 
 @app.route("/chat", methods=["POST"])
 def chat():
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
-        return jsonify({"error": "API key not set"}), 500
+        return 'jsonify({"error": "API key not set"}), 500'
 
-    client = OpenAI(api_key=api_key)
+    client = 'OpenAI(api_key=api_key)'
 
-    user_message = request.json.get("message")
+    user_message = 'request.json.get("message")'
 
     response = client.chat.completions.create(
         model="gpt-4o-mini",
@@ -25,7 +25,7 @@ def chat():
         ]
     )
 
-    return jsonify({"reply": response.choices[0].message.content})
+    return 'jsonify({"reply": response.choices[0].message.content})'
 
     # noinspection PyUnreachableCode
     return jsonify({
