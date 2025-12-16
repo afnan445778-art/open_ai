@@ -1,43 +1,111 @@
 <!DOCTYPE html>
-<html lang="">
+<!--suppress ALL -->
+<html lang="en">
 <head>
-    <title>My AI Chat</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart AI Assistant</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        h1 { color: #333; }
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .messages {
+            padding: 20px;
+            height: 400px;
+            overflow-y: auto;
+            flex: 1;
+            border-bottom: 1px solid #eee;
+        }
+        .message { margin-bottom: 15px; display: flex; flex-direction: column; }
+
+        .message.user .text { background: #007bff; color: white; align-self: flex-end; }
+        .message.ai .text { background: #e5e5ea; color: #000; align-self: flex-start; }
+        .text { padding: 10px 15px; border-radius: 20px; max-width: 80%; word-wrap: break-word; }
+        .input-container { display: flex; padding: 15px; gap: 10px; }
+        input[type="text"] { flex: 1; padding: 10px 15px; border-radius: 20px; border: 1px solid #ccc; outline: none; }
+        button { background: #007bff; color: white; border: none; border-radius: 20px; padding: 10px 20px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
 </head>
 <body>
-    <h2>Chat with AI</h2>
-    <label for="userInput"></label><input id="userInput" placeholder="Type your message" style="width:300px">
-    <button onclick="sendMessage()">Send</button>
-    <div id="responseDiv" style="margin-top:20px; border:1px solid #ccc; padding:10px; width:320px;">
-        Response will appear here
+    <h1>Smart AI Assistant</h1>
+    <div class="chat-container">
+        <div class="messages" id="messages">
+            <div class="message ai">
+                <div class="text">Hello! I am your AI assistant. Ask me anything.</div>
+            </div>
+        </div>
+        <div class="input-container">
+            <label for="userInput"></label><input type="text" id="userInput" placeholder="Type your message here..." onkeypress="checkEnter(event)">
+            <button onclick="sendMessage()">Send</button>
+        </div>
     </div>
 
     <script>
-        async function sendMessage() {
-            const userInput = document.getElementById("userInput").value;
-            if (!userInput) return;
+        const messagesDiv = document.getElementById("messages");
+        const inputField = document.getElementById("userInput");
 
-            const responseDiv = document.getElementById("responseDiv");
+        function addMessage(text, sender) {
+            const msgDiv = document.createElement("div");
+            msgDiv.classList.add("message", sender);
+
+            const textDiv = document.createElement("div");
+            textDiv.classList.add("text");
+            textDiv.innerText = text;
+
+            msgDiv.appendChild(textDiv);
+            messagesDiv.appendChild(msgDiv);
+
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const message = inputField.value.trim();
+            if (!message) return;
+
+            addMessage(message, "user");
+            inputField.value = "";
 
             try {
+                // Send POST request to your Flask backend
                 const res = await fetch("/chat", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ message: userInput })
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message })
                 });
+
                 const data = await res.json();
-                data.reply = undefined;
 
                 if (data.reply) {
-                    responseDiv.innerText = data.reply;
+                    addMessage(data.reply, "ai");
                 } else if (data.error) {
-                    responseDiv.innerText = "Error: " + data.error;
+                    addMessage("Error: " + data.error, "ai");
                 }
             } catch (err) {
-                responseDiv.innerText = "Request failed: " + err;
+                addMessage("Request failed: " + err, "ai");
             }
+        }
+
+        function checkEnter(event) {
+            if (event.key === "Enter") sendMessage();
         }
     </script>
 </body>
 </html>
+
