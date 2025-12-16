@@ -29,9 +29,3 @@ function sendMessage() {
         addMessage("AI: " + data.reply, "ai");
     });
 }
-
-function handleKey(e) {
-    if (e.key === "Enter") {
-        sendMessage();
-    }
-}
