@@ -1,12 +1,13 @@
-import os
 from flask import Flask, render_template, request, jsonify
-from openai import OpenAI
 
 app = Flask(__name__)
 
-client = OpenAI(
-    api_key=os.environ.get("OPENAI_API_KEY")
-)
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+
+client = 'OpenAI( api_key=os.environ.get("OPENAI_API_KEY")'
 
 @app.route("/")
 def home():
