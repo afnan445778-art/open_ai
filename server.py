@@ -1,39 +1,50 @@
-from flask import Flask, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory
 import os
+import openai  # Make sure you installed it: pip install openai
 
 app = Flask(__name__)
 
+# Serve your index.html
 @app.route("/")
 def home():
     return send_from_directory(".", "index.html")
 
+
+# Chat endpoint
 @app.route("/chat", methods=["POST"])
 def chat():
+    # Get API key from environment variable
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
-        return 'jsonify({"error": "API key not set"}), 500'
+        return jsonify({"error": "API key not set"}), 500
 
-    client = 'OpenAI(api_key=api_key)'
+    openai.api_key = api_key
 
-    user_message = 'request.json.get("message")'
+    # Get user message from POST JSON
+    data = request.get_json()
+    if not data or "message" not in data:
+        return jsonify({"error": "No message provided"}), 400
 
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "You are a smart AI assistant."},
-            {"role": "user", "content": user_message}
-        ]
-    )
+    user_message = data["message"]
 
-    return 'jsonify({"reply": response.choices[0].message.content})'
+    try:
+        # Call OpenAI API
+        response = openai.ChatCompletion.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a smart AI assistant."},
+                {"role": "user", "content": user_message}
+            ]
+        )
+        reply_text = response.choices[0].message.content
 
-    # noinspection PyUnreachableCode
-    return jsonify({
-        "reply": response.output_text
-    })
+        return jsonify({"reply": reply_text})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 5000))  # Render provides the PORT variable
+    port = int(os.environ.get("PORT", 5000))  # Use environment PORT or 5000
     app.run(host="0.0.0.0", port=port, debug=True)
 
