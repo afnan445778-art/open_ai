@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart AI Assistant</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .chat-container {
+            background: #fff;
+            width: 400px;
+            height: 600px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .chat-header {
+            background: #4f46e5;
+            color: #fff;
+            padding: 15px;
+            font-size: 18px;
+            text-align: center;
+            border-radius: 15px 15px 0 0;
+        }
+
+        #chat-box {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: #f9fafb;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+
+        .chat-input button {
+            margin-left: 8px;
+            padding: 10px 15px;
+            border: none;
+            background: #4f46e5;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">🤖 Smart AI Assistant</div>
+    <div id="chat-box"></div>
+    <div class="chat-input">
+        <label for="user-input"></label><input type="text" id="user-input" placeholder="Ask me anything..." onkeydown="handleKey(event)">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+    const chatBox = document.getElementById("chat-box");
+    const input = document.getElementById("user-input");
+
+    function addMessage(text, sender) {
+        const msg = document.createElement("div");
+        msg.className = `message ${sender}`;
+        msg.innerText = text;
+        chatBox.appendChild(msg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function sendMessage() {
+        const message = input.value.trim();
+        if (!message) return;
+
+        addMessage("You: " + message, "user");
+        input.value = "";
+
+        // Placeholder for AI response
+        addMessage("AI: (response will appear here)", "ai");
+
+        // Later, connect this to Flask API /chat endpoint
+    }
+
+    function handleKey(e) {
+        if (e.key === "Enter") {
+            sendMessage();
+        }
+    }
+</script>
+
+</body>
+</html>
