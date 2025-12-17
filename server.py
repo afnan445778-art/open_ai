@@ -5,6 +5,10 @@ from openai import OpenAI, APIError  # Import the modern OpenAI class and except
 # --- Application Initialization ---
 
 app = Flask(__name__)
+@app.route("/sitemap.xml")
+def sitemap():
+    return send_from_directory(os.path.dirname(__file__), "sitemap.xml")
+
 
 # IMPORTANT: Initialize the OpenAI Client
 # The modern client automatically reads the OPENAI_API_KEY from os.environ.
