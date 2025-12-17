@@ -8,6 +8,9 @@ app = Flask(__name__)
 @app.route("/sitemap.xml")
 def sitemap():
     return send_from_directory(os.path.dirname(__file__), "sitemap.xml")
+@app.route("/robots.txt")
+def robots():
+    return send_from_directory(os.path.dirname(__file__), "robots.txt")
 
 
 # IMPORTANT: Initialize the OpenAI Client

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://open-ai-1-0rgq.onrender.com/sitemap.xml
