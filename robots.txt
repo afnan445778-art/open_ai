@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https:/https://open-ai-1-0rgq.onrender.com/sitemap.xml
+Sitemap: https:/https:/open-ai-1-0rgq.onrender.com/sitemap.xml
