@@ -1,76 +1,137 @@
 <!DOCTYPE html>
-<!--suppress ALL -->
 <html lang="en">
 <head>
     <meta name="google-site-verification" content="zNg_ROmaf9NdjxVU_hCNzOuF0ELOYVMynMQTECcW2NQ" />
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smarter AI Assistant</title>
-<style>
-body { font-family: Arial,serif; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-h1 { color: #333; }
-.chat-container { width: 100%; max-width: 600px; background: #fff; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
-.messages { padding: 20px; height: 400px; overflow-y: auto; flex: 1; border-bottom: 1px solid #eee; }
-.message { margin-bottom: 15px; display: flex; flex-direction: column; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smarter AI Assistant</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
 
-.message.user .text { background: #007bff; color: white; align-self: flex-end; }
-.message.ai .text { background: #e5e5ea; color: #000; align-self: flex-start; }
-.text { padding: 10px 15px; border-radius: 20px; max-width: 80%; word-wrap: break-word; }
-.input-container { display: flex; padding: 15px; gap: 10px; }
-input[type="text"] { flex: 1; padding: 10px 15px; border-radius: 20px; border: 1px solid #ccc; outline: none; }
-button { background: #007bff; color: white; border: none; border-radius: 20px; padding: 10px 20px; cursor: pointer; }
-button:hover { background: #0056b3; }
-</style>
+        /* New Header Styling */
+        .chat-header {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 15px 20px;
+            background: #fff;
+            border-bottom: 1px solid #eee;
+        }
+
+        .logo-img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            margin-right: 15px;
+            object-fit: cover;
+            border: 2px solid #007bff;
+        }
+
+        .header-title h2 { margin: 0; font-size: 1.2rem; color: #333; }
+        .status { font-size: 0.8rem; color: #28a745; display: flex; align-items: center; }
+        .status::before { content: "●"; margin-right: 5px; }
+
+        .chat-container { width: 100%; max-width: 600px; background: #fff; border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; margin-top: 10px; }
+        .messages { padding: 20px; height: 450px; overflow-y: auto; flex: 1; background: #f9f9f9; }
+
+        .message { margin-bottom: 15px; display: flex; flex-direction: column; }
+        .message.user .text { background: #007bff; color: white; align-self: flex-end; border-radius: 18px 18px 2px 18px; }
+        .message.ai .text { background: #e5e5ea; color: #000; align-self: flex-start; border-radius: 18px 18px 18px 2px; }
+
+        .text { padding: 12px 18px; max-width: 80%; word-wrap: break-word; font-size: 0.95rem; line-height: 1.4; }
+
+        .input-container { display: flex; padding: 15px; gap: 10px; background: white; border-top: 1px solid #eee; }
+        input[type="text"] { flex: 1; padding: 12px 18px; border-radius: 25px; border: 1px solid #ddd; outline: none; transition: border 0.3s; }
+        input[type="text"]:focus { border-color: #007bff; }
+
+        button { background: #007bff; color: white; border: none; border-radius: 25px; padding: 10px 25px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #0056b3; }
+
+        /* Typing Indicator Style */
+        #typing { font-style: italic; color: #888; font-size: 0.85rem; margin-left: 10px; }
+    </style>
 </head>
 <body>
-<h1>Smarter AI Assistant</h1>
+
 <div class="chat-container">
-<div class="messages" id="messages">
-<div class="message ai"><div class="text">Hello! I am your smarter AI assistant. Ask me anything.</div></div>
-</div>
-<div class="input-container">
-    <label for="userInput"></label><input type="text" id="userInput" placeholder="Type your message here..." onkeypress="checkEnter(event)">
-<button onclick="sendMessage()">Send</button>
-</div>
+    <div class="chat-header">
+        <img src="logo.png" alt="AI Logo" class="logo-img">
+        <div class="header-title">
+            <h2>Smarter AI</h2>
+            <div class="status">Online</div>
+        </div>
+    </div>
+
+    <div class="messages" id="messages">
+        <div class="message ai">
+            <div class="text">Hello! I am your smarter AI assistant. Ask me anything.</div>
+        </div>
+    </div>
+
+    <div class="input-container">
+        <input type="text" id="userInput" placeholder="Type your message here..." onkeypress="checkEnter(event)">
+        <button onclick="sendMessage()">Send</button>
+    </div>
 </div>
 
 <script>
-const messagesDiv = document.getElementById("messages");
-const inputField = document.getElementById("userInput");
+    const messagesDiv = document.getElementById("messages");
+    const inputField = document.getElementById("userInput");
 
-function addMessage(text, sender) {
-    const msgDiv = document.createElement("div");
-    msgDiv.classList.add("message", sender);
-    const textDiv = document.createElement("div");
-    textDiv.classList.add("text");
-    textDiv.innerText = text;
-    msgDiv.appendChild(textDiv);
-    messagesDiv.appendChild(msgDiv);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
+    function addMessage(text, sender, isTemp = false) {
+        const msgDiv = document.createElement("div");
+        msgDiv.classList.add("message", sender);
+        if (isTemp) msgDiv.id = "typing-msg"; // ID to find and remove later
 
-async function sendMessage() {
-    const message = inputField.value.trim();
-    if (!message) return;
-    addMessage(message, "user");
-    inputField.value = "";
-    try {
-        const res = await fetch("/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message })
-        });
-        const data = await res.json();
-        if (data.reply) addMessage(data.reply, "ai");
-        else if (data.error) addMessage("Error: " + data.error, "ai");
-    } catch (err) {
-        addMessage("Request failed: " + err, "ai");
+        const textDiv = document.createElement("div");
+        textDiv.classList.add("text");
+        textDiv.innerText = text;
+
+        msgDiv.appendChild(textDiv);
+        messagesDiv.appendChild(msgDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
-}
 
-function checkEnter(event) {
-    if (event.key === "Enter") sendMessage();
-}
+    async function sendMessage() {
+        const message = inputField.value.trim();
+        if (!message) return;
+
+        // Add user message
+        addMessage(message, "user");
+        inputField.value = "";
+
+        // Add "typing" placeholder
+        addMessage("AI is thinking...", "ai", true);
+
+        try {
+            const res = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message })
+            });
+
+            const data = await res.json();
+
+            // Remove the typing placeholder
+            const typingIndicator = document.getElementById("typing-msg");
+            if (typingIndicator) typingIndicator.remove();
+
+            if (data.reply) {
+                addMessage(data.reply, "ai");
+            } else if (data.error) {
+                addMessage("Error: " + data.error, "ai");
+            }
+        } catch (err) {
+            const typingIndicator = document.getElementById("typing-msg");
+            if (typingIndicator) typingIndicator.remove();
+            addMessage("Request failed. Please try again.", "ai");
+        }
+    }
+
+    function checkEnter(event) {
+        if (event.key === "Enter") sendMessage();
+    }
 </script>
+
 </body>
 </html>
